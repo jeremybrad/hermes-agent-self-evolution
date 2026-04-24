@@ -53,11 +53,13 @@ python -m evolution.skills.evolve_skill \
 
 | Phase | Target | Engine | Status |
 |-------|--------|--------|--------|
-| **Phase 1** | Skill files (SKILL.md) | DSPy + GEPA | ✅ Implemented |
+| **Phase 1** | Skill files (SKILL.md) | DSPy + GEPA | 🟡 Proof of concept |
 | **Phase 2** | Tool descriptions | DSPy + GEPA | 🔲 Planned |
 | **Phase 3** | System prompt sections | DSPy + GEPA | 🔲 Planned |
 | **Phase 4** | Tool implementation code | Darwinian Evolver | 🔲 Planned |
 | **Phase 5** | Continuous improvement loop | Automated pipeline | 🔲 Planned |
+
+**Phase 1 status detail.** The full pipeline (load skill → generate synthetic eval dataset → wrap as DSPy module → optimize → validate constraints → score on holdout → save artifacts) is implemented and has been executed end-to-end once on the `arxiv` skill with **DSPy BootstrapFewShot** (not GEPA). That run observed +39.5% on one validation example and 0.0% on the other (average +20.7%), scored via a keyword-overlap proxy rather than the LLM-as-judge scorer the code also supports. GEPA integration is written into `evolve_skill.py` but has not been exercised against a real skill. See `reports/phase1_validation_report.pdf` for the BootstrapFewShot run and `output/` for any reproducibility artifacts that land from subsequent runs.
 
 ## Engines
 
@@ -74,6 +76,18 @@ Every evolved variant must pass:
 3. **Caching compatibility** — No mid-conversation changes
 4. **Semantic preservation** — Must not drift from original purpose
 5. **PR review** — All changes go through human review, never direct commit
+
+## Reproducibility Convention
+
+Runs are kept reproducible by committing run artifacts to `output/` even though the eval datasets that drive them are intentionally gitignored (they're non-deterministic synthetic data, regenerated on demand). The convention:
+
+- `output/<skill>/<timestamp>/baseline_skill.md` — the skill as it was before the run
+- `output/<skill>/<timestamp>/evolved_skill.md` — the skill as the optimizer rewrote it
+- `output/<skill>/<timestamp>/metrics.json` — scores, sizes, optimizer config, elapsed time
+
+`evolve_skill.py` writes all three automatically. Commit them with each meaningful run so the numbers in any validation report (like `reports/phase1_validation_report.pdf`) have checked-in backing evidence. If you lose the repo, you lose the evidence — git is the archive.
+
+Datasets (`datasets/**/*.jsonl`) are gitignored by design: they're regenerated from the skill text on each run, so pinning them would overstate determinism.
 
 ## Full Plan
 
