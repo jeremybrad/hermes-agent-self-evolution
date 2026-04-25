@@ -190,8 +190,23 @@ def evolve(
     console.print(f"\n  Optimization completed in {elapsed:.1f}s")
 
     # ── 6. Extract evolved skill text ───────────────────────────────────
-    # The optimized module's instructions contain the evolved skill text
-    evolved_body = optimized_module.skill_text
+    # GEPA mutates the predictor's signature instructions (NOT the
+    # `skill_text` Python attribute, which is just an init-time copy).
+    # The signature lives on the inner Predict, not on the ChainOfThought
+    # wrapper, so use named_predictors() to find it portably across dspy versions.
+    evolved_body = None
+    evolved_demos = []
+    for _, pred in optimized_module.named_predictors():
+        sig = getattr(pred, "signature", None)
+        if sig is not None and hasattr(sig, "instructions"):
+            evolved_body = sig.instructions
+            evolved_demos = list(getattr(pred, "demos", []) or [])
+            break
+    if evolved_body is None:
+        # Last-ditch fallback: keep the original. This will trigger the
+        # "no change" path below and produce honest metrics rather than crashing.
+        console.print("[yellow]Could not locate evolved signature; falling back to baseline text[/yellow]")
+        evolved_body = skill["body"]
     evolved_full = reassemble_skill(skill["frontmatter"], evolved_body)
 
     # ── 7. Validate evolved skill ───────────────────────────────────────
@@ -276,6 +291,18 @@ def evolve(
     # Save baseline for comparison
     (output_dir / "baseline_skill.md").write_text(skill["raw"])
 
+    # Save GEPA's accumulated few-shot demonstrations, if any. These are part
+    # of the evolved program but live outside the skill body.
+    if evolved_demos:
+        try:
+            demos_serial = [
+                {k: getattr(d, k, None) for k in ("task_input", "output", "expected_behavior")}
+                for d in evolved_demos
+            ]
+            (output_dir / "evolved_demos.json").write_text(json.dumps(demos_serial, indent=2, default=str))
+        except Exception as e:
+            console.print(f"[yellow]Could not serialize demos: {e}[/yellow]")
+
     # Save metrics
     metrics = {
         "skill_name": skill_name,
@@ -288,6 +315,8 @@ def evolve(
         "improvement": improvement,
         "baseline_size": len(skill["body"]),
         "evolved_size": len(evolved_body),
+        "skill_text_changed": evolved_body.strip() != skill["body"].strip(),
+        "evolved_demo_count": len(evolved_demos),
         "train_examples": len(dataset.train),
         "val_examples": len(dataset.val),
         "holdout_examples": len(dataset.holdout),
