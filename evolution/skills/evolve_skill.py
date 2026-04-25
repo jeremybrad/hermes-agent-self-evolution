@@ -117,9 +117,11 @@ def evolve(
     console.print(f"  Split: {len(dataset.train)} train / {len(dataset.val)} val / {len(dataset.holdout)} holdout")
 
     # ── 3. Validate constraints on baseline ─────────────────────────────
+    # The structural-integrity check expects YAML frontmatter, so validate the
+    # full assembled skill (frontmatter + body) — not just the body fragment.
     console.print(f"\n[bold]Validating baseline constraints[/bold]")
     validator = ConstraintValidator(config)
-    baseline_constraints = validator.validate_all(skill["body"], "skill")
+    baseline_constraints = validator.validate_all(skill["raw"], "skill")
     all_pass = True
     for c in baseline_constraints:
         icon = "✓" if c.passed else "✗"
@@ -154,9 +156,14 @@ def evolve(
     start_time = time.time()
 
     try:
+        # GEPA requires a reflection LM (the strong model that proposes mutations
+        # by reading execution traces) and a budget. We map `iterations` to
+        # `max_full_evals` — the most intuitive mapping. dspy ≥3.2 dropped the
+        # legacy `max_steps` kwarg.
         optimizer = dspy.GEPA(
             metric=skill_fitness_metric,
-            max_steps=iterations,
+            max_full_evals=iterations,
+            reflection_lm=dspy.LM(optimizer_model),
         )
 
         optimized_module = optimizer.compile(
@@ -165,7 +172,9 @@ def evolve(
             valset=valset,
         )
     except Exception as e:
-        # Fall back to MIPROv2 if GEPA isn't available in this DSPy version
+        # Fall back to MIPROv2 if GEPA isn't available or fails to compile.
+        # MIPROv2 needs `optuna` — install it in your env if you want this path
+        # to actually work (`pip install optuna`).
         console.print(f"[yellow]GEPA not available ({e}), falling back to MIPROv2[/yellow]")
         optimizer = dspy.MIPROv2(
             metric=skill_fitness_metric,
@@ -174,6 +183,7 @@ def evolve(
         optimized_module = optimizer.compile(
             baseline_module,
             trainset=trainset,
+            valset=valset,
         )
 
     elapsed = time.time() - start_time
@@ -185,8 +195,11 @@ def evolve(
     evolved_full = reassemble_skill(skill["frontmatter"], evolved_body)
 
     # ── 7. Validate evolved skill ───────────────────────────────────────
+    # Validate the full reassembled file so the structural check sees the
+    # frontmatter. Pass `skill["raw"]` as the baseline so growth is measured
+    # consistently (frontmatter is identical, so this is body-vs-body in effect).
     console.print(f"\n[bold]Validating evolved skill[/bold]")
-    evolved_constraints = validator.validate_all(evolved_body, "skill", baseline_text=skill["body"])
+    evolved_constraints = validator.validate_all(evolved_full, "skill", baseline_text=skill["raw"])
     all_pass = True
     for c in evolved_constraints:
         icon = "✓" if c.passed else "✗"

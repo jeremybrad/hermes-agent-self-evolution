@@ -1,0 +1,17 @@
+{
+  "skill_name": "arxiv",
+  "timestamp": "20260424_183622",
+  "iterations": 5,
+  "optimizer_model": "openrouter/openai/gpt-4o",
+  "eval_model": "openrouter/openai/gpt-4o-mini",
+  "baseline_score": 0.38749999999999996,
+  "evolved_score": 0.4502149321266968,
+  "improvement": 0.06271493212669682,
+  "baseline_size": 9773,
+  "evolved_size": 9773,
+  "train_examples": 7,
+  "val_examples": 3,
+  "holdout_examples": 5,
+  "elapsed_seconds": 117.16467499732971,
+  "constraints_passed": true
+}
