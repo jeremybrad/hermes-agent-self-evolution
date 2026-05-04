@@ -59,7 +59,7 @@ python -m evolution.skills.evolve_skill \
 | **Phase 4** | Tool implementation code | Darwinian Evolver | 🔲 Planned |
 | **Phase 5** | Continuous improvement loop | Automated pipeline | 🔲 Planned |
 
-**Phase 1 status detail.** The full pipeline (load skill → generate synthetic eval dataset → wrap as DSPy module → optimize → validate constraints → score on holdout → save artifacts) is implemented and has been executed end-to-end once on the `arxiv` skill with **DSPy BootstrapFewShot** (not GEPA). That run observed +39.5% on one validation example and 0.0% on the other (average +20.7%), scored via a keyword-overlap proxy rather than the LLM-as-judge scorer the code also supports. GEPA integration is written into `evolve_skill.py` but has not been exercised against a real skill. See `reports/phase1_validation_report.pdf` for the BootstrapFewShot run and `output/` for any reproducibility artifacts that land from subsequent runs.
+**Phase 1 status detail.** The full pipeline (load skill → generate synthetic eval dataset → wrap as DSPy module → optimize → validate constraints → score on holdout → save artifacts) is implemented and has been executed end-to-end once on the `arxiv` skill with **DSPy BootstrapFewShot** (not GEPA), then re-run end-to-end with GEPA on 2026-04-24 (see `20_receipts/session_handoffs/2026-04-24_gepa_phase1_handoff.md`). The GEPA arxiv run produced a +3.9% holdout improvement and -75% body size on the keyword-overlap proxy. See `80_reports/legacy_reports/phase1_validation_report.pdf` for the original BootstrapFewShot run and `70_evidence/runs/<skill>/<timestamp>/` for reproducibility artifacts from each subsequent run.
 
 ## Engines
 
@@ -71,7 +71,7 @@ python -m evolution.skills.evolve_skill \
 ## Guardrails
 
 Every evolved variant must pass:
-1. **Full test suite** — `pytest tests/ -q` must pass 100%
+1. **Full test suite** — `pytest 60_tests/ -q` must pass 100%
 2. **Size limits** — Skills ≤15KB, tool descriptions ≤500 chars
 3. **Caching compatibility** — No mid-conversation changes
 4. **Semantic preservation** — Must not drift from original purpose
@@ -79,15 +79,15 @@ Every evolved variant must pass:
 
 ## Reproducibility Convention
 
-Runs are kept reproducible by committing run artifacts to `output/` even though the eval datasets that drive them are intentionally gitignored (they're non-deterministic synthetic data, regenerated on demand). The convention:
+Runs are kept reproducible by committing run artifacts to `70_evidence/runs/` even though the eval datasets that drive them are intentionally gitignored (they're non-deterministic synthetic data, regenerated on demand). The convention:
 
-- `output/<skill>/<timestamp>/baseline_skill.md` — the skill as it was before the run
-- `output/<skill>/<timestamp>/evolved_skill.md` — the skill as the optimizer rewrote it
-- `output/<skill>/<timestamp>/metrics.json` — scores, sizes, optimizer config, elapsed time
+- `70_evidence/runs/<skill>/<timestamp>/baseline_skill.md` — the skill as it was before the run
+- `70_evidence/runs/<skill>/<timestamp>/evolved_skill.md` — the skill as the optimizer rewrote it
+- `70_evidence/runs/<skill>/<timestamp>/metrics.json` — scores, sizes, optimizer config, elapsed time
 
-`evolve_skill.py` writes all three automatically. Commit them with each meaningful run so the numbers in any validation report (like `reports/phase1_validation_report.pdf`) have checked-in backing evidence. If you lose the repo, you lose the evidence — git is the archive.
+`evolve_skill.py` writes all three automatically. Commit them with each meaningful run so the numbers in any validation report have checked-in backing evidence. If you lose the repo, you lose the evidence — git is the archive.
 
-Datasets (`datasets/**/*.jsonl`) are gitignored by design: they're regenerated from the skill text on each run, so pinning them would overstate determinism.
+Datasets (`50_data/datasets/**/*.jsonl`) are gitignored by design: they're regenerated from the skill text on each run, so pinning them would overstate determinism.
 
 ## Full Plan
 

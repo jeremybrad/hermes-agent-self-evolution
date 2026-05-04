@@ -2,7 +2,7 @@
 
 Usage:
     python -m evolution.skills.evolve_skill --skill github-code-review --iterations 10
-    python -m evolution.skills.evolve_skill --skill arxiv --eval-source golden --dataset datasets/skills/arxiv/
+    python -m evolution.skills.evolve_skill --skill arxiv --eval-source golden --dataset 50_data/datasets/skills/arxiv/
 """
 
 import json
@@ -84,7 +84,7 @@ def evolve(
         dataset = GoldenDatasetLoader.load(Path(dataset_path))
         console.print(f"  Loaded golden dataset: {len(dataset.all_examples)} examples")
     elif eval_source == "sessiondb":
-        save_path = Path(dataset_path) if dataset_path else Path("datasets") / "skills" / skill_name
+        save_path = Path(dataset_path) if dataset_path else Path("50_data") / "datasets" / "skills" / skill_name
         dataset = build_dataset_from_external(
             skill_name=skill_name,
             skill_text=skill["raw"],
@@ -103,7 +103,7 @@ def evolve(
             artifact_type="skill",
         )
         # Save for reuse
-        save_path = Path("datasets") / "skills" / skill_name
+        save_path = Path("50_data") / "datasets" / "skills" / skill_name
         dataset.save(save_path)
         console.print(f"  Generated {len(dataset.all_examples)} synthetic examples")
         console.print(f"  Saved to {save_path}/")
@@ -226,7 +226,7 @@ def evolve(
     if not all_pass:
         console.print("[red]✗ Evolved skill FAILED constraints — not deploying[/red]")
         # Still save for inspection
-        output_path = Path("output") / skill_name / "evolved_FAILED.md"
+        output_path = Path("70_evidence") / "runs" / skill_name / "evolved_FAILED.md"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(evolved_full)
         console.print(f"  Saved failed variant to {output_path}")
@@ -282,7 +282,7 @@ def evolve(
 
     # ── 10. Save output ─────────────────────────────────────────────────
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path("output") / skill_name / timestamp
+    output_dir = Path("70_evidence") / "runs" / skill_name / timestamp
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save evolved skill

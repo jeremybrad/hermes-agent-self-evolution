@@ -13,7 +13,7 @@ from reportlab.lib import colors
 from datetime import datetime
 
 
-def build_report(output_path: str = "reports/phase1_validation_report.pdf"):
+def build_report(output_path: str = "80_reports/phase1_validation_report.pdf"):
     import os
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 

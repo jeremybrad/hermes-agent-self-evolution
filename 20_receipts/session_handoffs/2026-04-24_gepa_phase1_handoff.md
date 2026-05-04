@@ -1,3 +1,22 @@
+> **2026-05-04 — Layout migration note (added retroactively).**
+> This handoff was written against the pre-Betty-Protocol layout. As of
+> 2026-05-04 the repo restructured to numbered folders. Path translations:
+> - `evolution/` → `40_src/evolution/` (Python package name unchanged — `from evolution.X import Y` still works)
+> - `tests/` → `60_tests/`
+> - `output/` → `70_evidence/runs/`
+> - `reports/` → `80_reports/legacy_reports/` (the historical PDF) and `80_reports/` (new reports)
+> - `datasets/` → `50_data/datasets/`
+> - `generate_report.py` → `40_src/generate_report.py`
+> - `analyze_phase1.py` (untracked) — still expected to be deleted
+>
+> The "honest run" referenced throughout this doc as
+> `output/arxiv/20260424_184914/` is now at
+> `70_evidence/runs/arxiv/20260424_184914/`. Same files, same metrics.json,
+> same +3.9% / -75% claim. Receipt for the migration:
+> `20_receipts/2026-05-04_betty_protocol_compliance.md`.
+
+---
+
 # Phase 1 GEPA — Session Handoff
 **Date:** 2026-04-24
 **Repo:** C027_hermes-evolution (NousResearch/hermes-agent-self-evolution fork)

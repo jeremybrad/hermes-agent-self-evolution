@@ -1,0 +1,50 @@
+# RELATIONS.yaml — C027_hermes-evolution
+# Purpose: declare cross-repo boundaries for the PC Hermes evolution workbench.
+
+version: 2
+repo: C027_hermes-evolution
+machine_scope: PC
+
+owns:
+  - "DSPy + GEPA optimization pipeline for Hermes Agent SKILL.md files"
+  - "Synthetic + golden eval dataset builders (evolution.core.dataset_builder)"
+  - "Fitness functions: keyword-overlap heuristic + LLMJudge multi-dimensional scorer"
+  - "Constraint validator for evolved skill variants (size, structure, growth gates)"
+  - "External session importers — Hermes Agent sessions, Claude Code transcripts, Copilot logs"
+  - "Reproducibility convention: committed run artifacts under 70_evidence/runs/<skill>/<timestamp>/"
+  - "Reports generator: 40_src/generate_report.py → 80_reports/*.pdf"
+
+must_not_own:
+  - "The Hermes runtime itself (lives at \\\\wsl.localhost\\Ubuntu-22.04\\home\\jbrad\\.hermes\\hermes-agent\\ on PC; not this repo)"
+  - "Mac-specific Hermes config — that lives in a separate fork (TBD repo)"
+  - "Workspace governance and Betty Protocol standards (belongs to C010_standards)"
+  - "Personal context primers and operator notes (belong to JEREMY_PRIMER files in C010)"
+
+reads_from:
+  - path: "\\\\wsl.localhost\\Ubuntu-22.04\\home\\jbrad\\.hermes\\hermes-agent\\skills\\**\\SKILL.md"
+    purpose: "Source of truth for skill text being optimized; UNC path required (WSL filesystem)"
+  - repo: "C016_prompt-engine"
+    purpose: "Optional — prompt-engineering reference patterns and reusable signatures"
+    status: "advisory only, no hard dependency"
+
+writes_to:
+  - path: "70_evidence/runs/<skill>/<timestamp>/"
+    contents: "baseline_skill.md, evolved_skill.md, metrics.json, evolved_demos.json (if any)"
+  - path: "80_reports/"
+    contents: "Validation PDFs and human-readable diff reports"
+  - path: "\\\\wsl.localhost\\Ubuntu-22.04\\home\\jbrad\\.hermes\\hermes-agent\\skills\\**\\SKILL.md"
+    purpose: "OPTIONAL — promote evolved skill back into runtime after validation gate"
+    status: "manual step today; never automatic"
+
+future_relations:
+  - repo: "C027_hermes-evolution-mac (or C028_hermes-evolution-mac)"
+    purpose: "Mac counterpart to this repo. Forked from C027 then diverged. Will likely use a different memory system, different agent set, possibly different dataset sources."
+    status: "not yet created — Mac will set this up when ready"
+  - repo: "C0??_hermes-evolution-vps"
+    purpose: "VPS counterpart, if/when there's a reason to evolve skills server-side"
+    status: "speculative — not planned"
+  - repo: "C0??_hermes-runtime-pc (or similar)"
+    purpose: "Promote the WSL ~/.hermes/hermes-agent/ install into a tracked repo (one branch per machine: pc, mac, vps). Currently the runtime is just a clone of NousResearch upstream + private skill edits."
+    status: "design candidate — see ROADMAP.md"
+
+upstream_fork_of: "NousResearch/hermes-agent-self-evolution"

@@ -1,3 +1,4 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -6,14 +7,18 @@ dist/
 build/
 .eggs/
 *.egg
+
+# Virtualenvs
 .venv/
 venv/
 .env
 
-# Generated eval datasets (local, not shared)
-datasets/**/*.jsonl
-datasets/**/*.json
-!datasets/.gitkeep
+# Generated eval datasets — synthetic, regenerated on demand.
+# Run artifacts that depend on them are committed under 70_evidence/
+# as the reproducibility archive.
+50_data/datasets/**/*.jsonl
+50_data/datasets/**/*.json
+!50_data/datasets/.gitkeep
 
 # Evolution snapshots
 snapshots/
@@ -24,3 +29,65 @@ snapshots/
 .vscode/
 *.swp
 *.swo
+
+# OS
+.DS_Store
+Thumbs.db
+.stfolder/
+
+# Claude / agent worktrees and artifacts
+.claude/
+
+# Cowork-style debug scripts and logs from prior sessions
+# (the parent worktree on private/hermes-skill-lab accumulated ~500
+# of these; preempt the same drift here).
+_c027_*.log
+_c027_*.sh
+_c027_*.py
+_c027_*.txt
+_phase*.sh
+_phase*.py
+_dryrun*.log
+_dryrun*.sh
+_check*.sh
+_inspect*.sh
+_calibrate*.py
+_calibrate*.sh
+_run_*.sh
+_post_check_*.sh
+_evaluate_candidate*.py
+_extract_candidate*.py
+_patch_live.py
+_peek_env.sh
+_kill_v3.sh
+_clean_run_v3.sh
+_find_key*.sh
+_commit*.sh
+_commit_*.sh
+_diag*.sh
+_env_check.sh
+_final_check.sh
+_gepa_*.sh
+_gepa_*.log
+_hermes_*.sh
+_poll.sh
+_preflight*.sh
+_probe_*.sh
+_sanity*.sh
+_selftest.sh
+_verify_live.sh
+_wait*.sh
+_wsl_list*.txt
+_wt_protect.sh
+_analyze.sh
+_analyze.log
+
+# Old top-level outputs (before the 2026-05-04 layout migration).
+# Kept here so any stragglers from old branches don't get committed
+# back into the wrong place.
+/output/
+/reports/
+/datasets/
+/tests/
+/evolution/
+analyze_phase1.py

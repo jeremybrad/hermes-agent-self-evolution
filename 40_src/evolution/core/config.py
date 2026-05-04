@@ -40,7 +40,7 @@ class EvolutionConfig:
     tblite_regression_threshold: float = 0.02  # Max 2% regression allowed
 
     # Output
-    output_dir: Path = field(default_factory=lambda: Path("./output"))
+    output_dir: Path = field(default_factory=lambda: Path("./70_evidence/runs"))
     create_pr: bool = True
 
 
@@ -62,7 +62,10 @@ def get_hermes_agent_path() -> Path:
     if home_path.exists():
         return home_path
 
-    sibling_path = Path(__file__).parent.parent.parent / "hermes-agent"
+    # __file__ = 40_src/evolution/core/config.py
+    # parents: core(1) → evolution(2) → 40_src(3) → repo_root(4)
+    # The "sibling" being checked is at repo-root level (e.g. C027_hermes-evolution/hermes-agent/).
+    sibling_path = Path(__file__).parent.parent.parent.parent / "hermes-agent"
     if sibling_path.exists():
         return sibling_path
 

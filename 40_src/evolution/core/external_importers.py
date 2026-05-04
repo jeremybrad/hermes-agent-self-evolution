@@ -735,7 +735,7 @@ def _load_skill_text(skill_name: str, skills_dir: Optional[Path] = None) -> tupl
 )
 @click.option("--skill", required=True, help="Skill name to generate eval data for")
 @click.option("--output", type=click.Path(), default=None,
-              help="Output directory (default: datasets/skills/<skill>/)")
+              help="Output directory (default: 50_data/datasets/skills/<skill>/)")
 @click.option("--model", default="openrouter/google/gemini-2.5-flash",
               help="LiteLLM model string for relevance scoring")
 @click.option("--max-examples", default=50, help="Max eval examples to generate")
@@ -767,7 +767,9 @@ def main(source, skill, output, model, max_examples, dry_run):
         return
 
     if output is None:
-        output = Path(__file__).parent.parent.parent / "datasets" / "skills" / skill_name
+        # __file__ = 40_src/evolution/core/external_importers.py
+        # parents: core(1) → evolution(2) → 40_src(3) → repo_root(4)
+        output = Path(__file__).parent.parent.parent.parent / "50_data" / "datasets" / "skills" / skill_name
     else:
         output = Path(output)
 

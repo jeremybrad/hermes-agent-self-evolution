@@ -36,8 +36,10 @@ Homepage = "https://github.com/NousResearch/hermes-agent-self-evolution"
 Repository = "https://github.com/NousResearch/hermes-agent-self-evolution"
 
 [tool.setuptools.packages.find]
+where = ["40_src"]
 include = ["evolution*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["60_tests"]
 python_files = ["test_*.py"]
+pythonpath = ["40_src"]

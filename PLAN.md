@@ -135,36 +135,42 @@ Human Review & Merge
 
 Hermes Agent Self-Evolution lives in its own repo (`NousResearch/hermes-agent-self-evolution`), separate from hermes-agent. It pip-installs or clones hermes-agent to access its infrastructure, and outputs PRs against the hermes-agent repo.
 
+> NOTE: This diagram is the canonical layout in the upstream NousResearch
+> repo. C027 (this fork) reorganized into Betty Protocol numbered folders
+> on 2026-05-04 — see receipt `20_receipts/2026-05-04_betty_protocol_compliance.md`
+> for the migration. Effective layout in this fork:
+
 ```
-hermes-agent-self-evolution/             # Standalone repo
+C027_hermes-evolution/                   # PC fork
 ├── PLAN.md                             # This file
 ├── README.md                           # Setup, usage, examples
-├── pyproject.toml                      # Package config + dependencies (dspy, gepa)
+├── CLAUDE.md, AGENTS.md, META.yaml...  # Betty Protocol metadata
+├── pyproject.toml                      # Package config (where=["40_src"])
 │
-├── evolution/                          # Main package
-│   ├── core/                           # Shared infrastructure
-│   │   ├── __init__.py
-│   │   ├── dataset_builder.py          # Eval dataset generation (synthetic, SessionDB mining)
-│   │   ├── fitness.py                  # Fitness functions (LLM-as-judge, rubrics, length penalties)
-│   │   ├── constraints.py              # Constraint validators (char limits, caching compat, test suite)
-│   │   ├── benchmark_gate.py           # Benchmark gating (run TBLite/YC-Bench, check regression)
-│   │   └── pr_builder.py              # Auto-generate PR with metrics, diffs, comparison
-│   │
-│   ├── skills/                         # Phase 1: Skill evolution
-│   │   ├── __init__.py
-│   │   ├── evolve_skill.py            # Main entry: python -m evolution.skills.evolve_skill --skill <name>
-│   │   └── skill_module.py            # Wraps SKILL.md as DSPy module
-│   │
-│   ├── tools/                          # Phase 2: Tool description evolution
-│   ├── prompts/                        # Phase 3: System prompt evolution
-│   ├── code/                           # Phase 4: Code evolution (Darwinian Evolver)
-│   └── monitor/                        # Phase 5: Continuous loop
+├── 00_admin/                           # Session continuity
+├── 00_run/                             # Easy-button launchers
+├── 20_receipts/                        # Change receipts + handoffs
+├── 30_config/                          # Config files
 │
-├── datasets/                           # Generated eval datasets (gitignored, local)
-│   ├── skills/
-│   └── tools/
+├── 40_src/
+│   ├── generate_report.py              # PDF report generator
+│   └── evolution/                      # Main package (import as `evolution`)
+│       ├── core/                       # Shared infrastructure
+│       │   ├── dataset_builder.py
+│       │   ├── fitness.py
+│       │   ├── constraints.py
+│       │   ├── benchmark_gate.py       # Phase 1.x — not yet built
+│       │   └── pr_builder.py           # Phase 1.x — not yet built
+│       ├── skills/                     # Phase 1
+│       ├── tools/                      # Phase 2
+│       ├── prompts/                    # Phase 3
+│       ├── code/                       # Phase 4
+│       └── monitor/                    # Phase 5
 │
-└── tests/                              # Test suite
+├── 50_data/datasets/                   # Eval datasets (gitignored)
+├── 60_tests/                           # Test suite (pytest)
+├── 70_evidence/runs/                   # Committed run artifacts (reproducibility)
+└── 80_reports/                         # Generated PDFs and validation summaries
 ```
 
 ### How It's Invoked
