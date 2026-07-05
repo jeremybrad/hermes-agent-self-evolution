@@ -82,3 +82,5 @@ See [PLAN.md](PLAN.md) for the complete architecture, evaluation data strategy, 
 ## License
 
 MIT — © 2026 Nous Research
+
+Ecosystem placement: see C010 `registry/repos.yaml` entry `C027_hermes-evolution` for parked disposition, revival trigger, and governance contracts.
